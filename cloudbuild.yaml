@@ -1,0 +1,20 @@
+steps:
+  # 1. ビルド：api フォルダの Dockerfile でイメージを作る
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/wiki-trend/wiki-api:$SHORT_SHA', 'api']
+
+  # 2. push：Artifact Registry に送る
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/wiki-trend/wiki-api:$SHORT_SHA']
+
+  # 3. デプロイ：既存のサービス wiki-api のイメージだけを差し替える
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'deploy', 'wiki-api',
+           '--image', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/wiki-trend/wiki-api:$SHORT_SHA',
+           '--region', 'asia-northeast1']
+
+images:
+  - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/wiki-trend/wiki-api:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

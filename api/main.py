@@ -64,6 +64,7 @@ def get_ranking(
       SAFE_DIVIDE(recent, prev) - 1 AS yoy,
       RANK() OVER (ORDER BY SAFE_DIVIDE(recent, prev) DESC) AS rnk
     FROM t
+    ORDER BY rnk
     """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
