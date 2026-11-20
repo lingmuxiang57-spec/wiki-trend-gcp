@@ -1,0 +1,41 @@
+articles:
+  - category: オントロジー・セマンティックWeb
+    article: Ontology_(information_science)
+  - category: オントロジー・セマンティックWeb
+    article: Semantic_Web
+  - category: オントロジー・セマンティックWeb
+    article: Resource_Description_Framework
+  - category: オントロジー・セマンティックWeb
+    article: Web_Ontology_Language
+  - category: オントロジー・セマンティックWeb
+    article: SPARQL
+  - category: グラフデータ
+    article: Knowledge_graph
+  - category: グラフデータ
+    article: Graph_database
+  - category: グラフデータ
+    article: Neo4j
+  - category: グラフデータ
+    article: Cypher_(query_language)
+  - category: グラフデータ
+    article: Graph_neural_network
+  - category: AI × データベース
+    article: Vector_database
+  - category: AI × データベース
+    article: Retrieval-augmented_generation
+  - category: リレーショナル・NoSQL
+    article: Relational_database
+  - category: リレーショナル・NoSQL
+    article: SQL
+  - category: リレーショナル・NoSQL
+    article: PostgreSQL
+  - category: リレーショナル・NoSQL
+    article: NoSQL
+  - category: リレーショナル・NoSQL
+    article: MongoDB
+  - category: 分析基盤
+    article: Data_warehouse
+  - category: 分析基盤
+    article: Data_lake
+  - category: 分析基盤
+    article: DuckDB

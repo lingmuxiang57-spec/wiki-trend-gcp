@@ -1,0 +1,9 @@
+#Python
+.venv/
+__pycache__/
+
+#ローカルの環境変数（連絡先などを含む）
+*.ps1
+.env
+
+docs/images/ジョブの実行画面.png
