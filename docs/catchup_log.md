@@ -322,3 +322,59 @@
 ## 次に活かすこと
 - デプロイの前に、イメージが push されているかを確認する（`gcloud artifacts docker images list --include-tags`。Phase 1 から2回目）
 - `requirements.txt` やコードは、それぞれのファイルの役割（一覧なのか、コマンドなのか、どのアプリに属するのか）を意識して書く
+
+# Phase 6
+## 実施した内容
+- プロジェクトを Git リポジトリにして、GitHub（`wiki-trend-gcp`）に push
+  - `.gitignore` で `.venv/`・`__pycache__/`・ローカルの環境変数のファイル（`*.ps1`・`.env`）を除外
+  - スクリーンショットは `docs/images/` にまとめ、push する前に全部の画像に個人情報が写っていないか確認した
+  - 課題の説明文は `docs/assignments.md` に移し、直下の `README.md` は最終報告用にした
+  - コミットのメールアドレスには、GitHub の非公開用アドレス（`...@users.noreply.github.com`）を使った
+- `cloudbuild.yaml` を作成：`docker build`（`api` フォルダ）→ `docker push`（Artifact Registry）→ `gcloud run deploy wiki-api`。イメージのタグはコミットの ID（`$SHORT_SHA`）
+- Cloud Build 専用の SA `wiki-cloudbuild` を作成し、次の権限を付与
+  - リポジトリ `wiki-trend` に `roles/artifactregistry.writer`（イメージの push）
+  - プロジェクトに `roles/run.developer`（デプロイ。IAM は変更できない `run.admin` より小さい権限）
+  - SA `wiki-api` に `roles/iam.serviceAccountUser`（`wiki-api` の SA で動くサービスをデプロイするための `actAs`）
+  - プロジェクトに `roles/logging.logWriter`（ビルドのログ）
+- Cloud Build のトリガー `deploy-wiki-api`（`asia-northeast1`）を作成：GitHub の main ブランチへの push で `cloudbuild.yaml` を実行
+
+## 確認・記録した項目
+- `/ranking` の並び順を直したコミット（`01358c7`）を push すると、トリガーが動き、52秒でビルドが成功（`SUCCESS`）した
+- Cloud Run の `wiki-api` が、新しいリビジョンでイメージ `wiki-api:01358c7` を使うようになり、公開 URL の `/ranking` が順位の順（1〜5）に並ぶようになった
+- イメージのタグがコミットの ID なので、今動いている API がどのコミットから作られたかを追える
+
+## 詰まったこと
+### 1. `.gitignore` に書いたのに、画像が commit の対象から外れなかった
+- 原因：2つあった
+  - `.gitignore` の区切りを `\` で書いていた。`.gitignore` では Windows でも `/` を使う
+  - すでに `git add` したファイルは、`.gitignore` に書いても外れない
+- 解決：`/` に直し、`git rm --cached` で commit の対象から外した（PC のファイルは残る）
+
+### 2. スクリーンショットに、メールアドレスが写っていた
+- 原因：Cloud Run の Job の一覧の「作成者」の列に、Gmail のアドレスが写っていた。一度 push すると、Git の履歴に残ってしまう
+- 解決：push の前に全部の画像を確認し、その画像は GitHub に上げないことにした（`.gitignore` で除外）
+
+### 3. `README.md` が `docs` フォルダの中に、空のファイルとしてできていた
+- 原因：GitHub のトップページに表示されるのは、リポジトリの直下の `README.md`。`docs` の中だと表示されない
+- 解決：直下に移した（課題の説明文は `docs/assignments.md` に移した）
+
+### 4. 最初に書いた `cloudbuild.yaml` が、このプロジェクトの設定と合っていなかった
+- 原因：ネットのサンプルをもとにしたため、次の4点が合っていなかった
+  - イメージの置き場所が、古い Container Registry（`gcr.io/...`）になっていた
+  - ビルドの元が `.`（リポジトリの直下）で、`Dockerfile` がある `api` フォルダではなかった
+  - サービス名が `panta-rhei` で、既存の `wiki-api` ではなかった（このままだと、SA も環境変数もない別のサービスができる）
+  - `images:` の書き方が違った
+- 解決：これまで手で打ったコマンドと同じ値に合わせて書き直した
+
+### 5. `gcloud builds list` で `Listed 0 items.`（実際にはビルドは成功していた）
+- 原因：`--region` を付けずに実行したので、`global` の一覧を見ていた。トリガーは `asia-northeast1` に作ったので、ビルドもそちらにあった
+- 解決：`--region=asia-northeast1` を付けて確認した
+
+## 学んだこと
+- CI/CD の設定（`cloudbuild.yaml`）は、これまで手で打ってきたコマンドを並べたもの。手で一度やったことがあるから、何を書けばいいか分かった
+- イメージのタグをコミットの ID（`$SHORT_SHA`）にすると、動いているものがどのコミットから作られたかを追えて、手でタグを付けるときの間違い（Phase 4 の `___` タグなど）もなくなる
+- Git は一度 push すると履歴に残るので、個人情報や秘密の情報は、push の前に確認して除外する必要がある
+
+## 次に活かすこと
+- `git add` のあと、commit の前に `git status` で、上げたくないファイルが入っていないかを確認する
+- `.gitignore` は、最初の `git add` より前に作る
