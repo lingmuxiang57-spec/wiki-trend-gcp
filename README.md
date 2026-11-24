@@ -110,7 +110,21 @@ flowchart LR
 - 原因は、Cloud Logging のアプリのログ（Python のトレースバック）で追える
 
 ### 自動実行の実績
-（3日分以上の実行履歴・ログ・BigQuery の日付ごとの件数を記入）
+2026-11-20〜11-23 の4日間、Cloud Scheduler からの自動実行が毎日成功しました。
+
+| 日付 | 実行（`RUN BY`） | ログ | 結果 |
+|---|---|---|---|
+| 11/20 15:00 | `wiki-scheduler` | `Merged staging into main table` | 成功（`1 / 1`） |
+| 11/21 15:00 | `wiki-scheduler` | `Merged staging into main table` | 成功（`1 / 1`） |
+| 11/22 15:00 | `wiki-scheduler` | `Merged staging into main table` | 成功（`1 / 1`） |
+| 11/23 15:00 | `wiki-scheduler` | `Merged staging into main table` | 成功（`1 / 1`） |
+
+- BigQuery では、11-15〜11-22 のすべての日が20件（20記事 × 1日）。重複も欠けもない
+- 初回の実行のときは公開の遅れで15件だった 11-19 も、翌日以降の「直近3日分」の取り直しで20件に埋まった
+
+![実行履歴](docs/images/実行履歴.png)
+![ログ](docs/images/ログ.png)
+![日付ごとの件数](docs/images/データ.png)
 
 ---
 
